@@ -7,25 +7,37 @@ const commits = ref([])
 const page = ref(0)
 const showloadmore = ref(true)
 
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const address = ref(route.params.address)
+
+console.log(address.value)
+
 async function fetchCommits(page) {
   try {
     const response = await axios.post(
       'https://pool.albertiprotocol.org/graphql',
       {
-        query: `query GetCommits($page: Int!, $perPage: Int!) {
-          getCommits(page: $page, perPage: $perPage) {
-            commitAt
-            data 
-            address
-            publicKey
-            signature
-            type
-            nonce
-            createdAt
-            updatedAt
-          }
-        }`,
+        query: `
+        query GetCommitsByAddress($address: String!, $page: Int!, $perPage: Int!) {
+  getCommitsByAddress(address: $address, page: $page, perPage: $perPage) {
+    commitAt
+    data
+    address
+    publicKey
+    signature
+    type
+    nonce
+    createdAt
+    updatedAt
+  }
+}
+
+`,
         variables: {
+          address: address.value,
           page: page,
           perPage: 9
         }
@@ -42,7 +54,7 @@ async function fetchCommits(page) {
       return []
     }
 
-    const commits = response.data.data.getCommits
+    const commits = response.data.data.getCommitsByAddress
     return commits.filter((commit) => commit.type === 'post')
   } catch (error) {
     console.error(error)
@@ -76,8 +88,7 @@ onMounted(() => {
       <RouterLink :to="`/post/${commit.signature}`">
         <div class="mb-4">
           <p class="text-xs font-bold text-gray-500">
-            <RouterLink :to="`/profile/${commit.address}`">{{ commit.address }}</RouterLink> -
-            {{ format(commit.updatedAt) }}
+            {{ commit.address }} - {{ format(commit.updatedAt) }}
           </p>
           <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
             {{ commit.data.content || '' }}

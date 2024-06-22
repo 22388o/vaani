@@ -42,7 +42,8 @@
             {{ commit.data.content || '' }}
           </h1>
           <p class="pt-2 text-sm font-medium">
-            by {{ commit.address }} - {{ format(commit.createdAt) }}
+            by <RouterLink :to="`/profile/${commit.address}`">{{ commit.address }}</RouterLink> -
+            {{ format(commit.createdAt) }}
           </p>
         </div>
       </div>
