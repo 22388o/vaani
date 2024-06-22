@@ -7,10 +7,12 @@ const commits = ref([])
 const page = ref(0)
 const showloadmore = ref(true)
 
+import { pool } from '@/config.js'
+
 async function fetchCommits(page) {
   try {
     const response = await axios.post(
-      'https://pool.albertiprotocol.org/graphql',
+      pool,
       {
         query: `query GetCommits($page: Int!, $perPage: Int!) {
           getCommits(page: $page, perPage: $perPage) {

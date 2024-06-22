@@ -58,10 +58,12 @@ import { format } from 'timeago.js'
 
 import axios from 'axios'
 
+import { pool } from '@/config.js'
+
 async function fetchCommit(signature) {
   try {
     const response = await axios.post(
-      'https://pool.albertiprotocol.org/graphql',
+      pool,
       {
         query: `query GetCommit($signature: String!) {
   getCommit(signature: $signature) {

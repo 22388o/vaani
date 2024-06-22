@@ -13,12 +13,12 @@ const route = useRoute()
 
 const address = ref(route.params.address)
 
-console.log(address.value)
+import { pool } from '@/config.js'
 
 async function fetchCommits(page) {
   try {
     const response = await axios.post(
-      'https://pool.albertiprotocol.org/graphql',
+      pool,
       {
         query: `
         query GetCommitsByAddress($address: String!, $page: Int!, $perPage: Int!) {
