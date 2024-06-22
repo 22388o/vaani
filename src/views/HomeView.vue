@@ -70,6 +70,12 @@ function scrollbind() {
 onMounted(() => {
   scrollbind()
 })
+
+window.onscroll = function () {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    scrollbind()
+  }
+}
 </script>
 
 <template>
