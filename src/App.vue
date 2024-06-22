@@ -3,13 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
-    <div>
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-  <RouterView />
+  <div class="container p-10 px-0 mx-auto md:py-20 md:p-10 md:px-0">
+    <RouterView />
+  </div>
 </template>
