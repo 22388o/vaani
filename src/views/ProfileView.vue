@@ -70,6 +70,10 @@ function scrollbind() {
     } else {
       showloadmore.value = false
     }
+
+    if (data.length < 9) {
+      showloadmore.value = false
+    }
   })
 }
 
