@@ -58,7 +58,7 @@ import { ref, onMounted } from 'vue'
 
 import { format } from 'timeago.js'
 
-import { fetchCommitBySig } from '@/config.js'
+import { commitbySignature } from '@/config.js'
 
 import { useRoute } from 'vue-router'
 
@@ -79,9 +79,7 @@ const commit = ref({
 })
 
 onMounted(() => {
-  fetchCommitBySig(id).then((data) => {
-    console.log(data)
-
+  commitbySignature(id.value).then((data) => {
     commit.value = data
   })
 })

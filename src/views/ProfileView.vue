@@ -33,6 +33,10 @@ function scrollbind() {
       showloadmore.value = false
     }
   })
+
+  commits.value = commits.value.filter(
+    (commit, index, self) => index === self.findIndex((t) => t.signature === commit.signature)
+  )
 }
 
 onMounted(() => {

@@ -78,7 +78,7 @@ export const fetchCommits = async (page) => {
   return data.getCommits.filter((commit) => commit.type === 'post')
 }
 
-export const fetchCommitBySig = async (signature) => {
+export const commitbySignature = async (signature) => {
   const query = `query GetCommit($signature: String!) {
     getCommit(signature: $signature) {
       commitAt
@@ -94,11 +94,14 @@ export const fetchCommitBySig = async (signature) => {
   }`
 
   const variables = { signature }
+
   const data = await graphQLRequest(query, variables)
 
-  if (!data || !data.getCommit) {
-    return []
+  if (!data) {
+    console.error('No data returned from GraphQL request')
+    return null
   }
+
 
   return data.getCommit
 }
