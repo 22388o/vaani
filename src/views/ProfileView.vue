@@ -5,9 +5,10 @@ import { format } from "timeago.js";
 const commits = ref([]);
 
 const meta = ref({
-  name: "",
+  hashtags: ["dummy"],
+  name: "Mr. Aberti",
   image: "QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq",
-  about: "",
+  about: "Not Set !",
   website: "",
 });
 
