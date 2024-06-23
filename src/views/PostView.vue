@@ -2,8 +2,14 @@
   <div>
     <div class="flex flex-col items-center sm:px-5 md:flex-row">
       <div class="w-full md:w-1/2">
-        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
-          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
+        <div
+          v-if="commit.data.attachments && commit.data.attachments.length > 0"
+        >
+          <div
+            v-for="attachment in commit.data.attachments"
+            :key="attachment.cid"
+            class="mb-4"
+          >
             <img
               v-if="attachment.type === 'image' && attachment.cid"
               :src="`https://ipfs.io/ipfs/${attachment.cid}`"
@@ -39,10 +45,14 @@
           </div>
 
           <h1 class="text-4xl font-bold leading-none lg:text-5xl xl:text-6xl">
-            {{ commit.data.content || '' }}
+            {{ commit.data.content || "" }}
           </h1>
           <p class="pt-2 text-sm font-medium">
-            by <RouterLink :to="`/profile/${commit.address}`">{{ commit.address }}</RouterLink> -
+            by
+            <RouterLink :to="`/profile/${commit.address}`">{{
+              commit.address
+            }}</RouterLink>
+            -
             {{ format(commit.createdAt) }}
           </p>
         </div>
@@ -52,78 +62,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
-import { format } from 'timeago.js'
+import { format } from "timeago.js";
 
-import axios from 'axios'
+import axios from "axios";
 
-import { pool } from '@/config.js'
+import { fetchCommitBySig } from "@/config.js";
 
-async function fetchCommit(signature) {
-  try {
-    const response = await axios.post(
-      pool,
-      {
-        query: `query GetCommit($signature: String!) {
-  getCommit(signature: $signature) {
-    commitAt
-    data
-    address
-    publicKey
-    signature
-    type
-    nonce
-    createdAt
-    updatedAt
-  }
-}
-`,
-        variables: {
-          signature: signature
-        }
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+import { useRoute } from "vue-router";
 
-    if (response.data.errors) {
-      console.error(response.data.errors)
-      return []
-    }
+const route = useRoute();
 
-    return response.data.data.getCommit
-  } catch (error) {
-    console.error(error)
-    return []
-  }
-}
-
-import { useRoute } from 'vue-router'
-const route = useRoute()
-
-const id = route.params.id
+const id = route.params.id;
 
 const commit = ref({
-  commitAt: '',
-  data: '',
-  address: '',
-  publicKey: '',
-  signature: '',
-  type: '',
-  nonce: '',
-  createdAt: '',
-  updatedAt: ''
-})
+  commitAt: "",
+  data: "",
+  address: "",
+  publicKey: "",
+  signature: "",
+  type: "",
+  nonce: "",
+  createdAt: "",
+  updatedAt: "",
+});
 
 onMounted(() => {
-  fetchCommit(id).then((data) => {
-    console.log(data)
+  fetchCommitBySig(id).then((data) => {
+    console.log(data);
 
-    commit.value = data
-  })
-})
+    commit.value = data;
+  });
+});
 </script>

@@ -1,106 +1,49 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
-import { format } from 'timeago.js'
+import { onMounted, ref } from "vue";
+import axios from "axios";
+import { format } from "timeago.js";
 
-const commits = ref([])
+const commits = ref([]);
 
 const meta = ref({
-  name: '',
-  image: 'QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq',
-  about: '',
-  website: ''
-})
+  name: "",
+  image: "QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq",
+  about: "",
+  website: "",
+});
 
-const page = ref(0)
-const showloadmore = ref(true)
+const page = ref(0);
 
-import { useRoute } from 'vue-router'
+const showloadmore = ref(true);
 
-const route = useRoute()
+import { useRoute } from "vue-router";
 
-const address = ref(route.params.address)
+const route = useRoute();
 
-import { pool } from '@/config.js'
+const address = ref(route.params.address);
 
-async function fetchCommits(page) {
-  try {
-    const response = await axios.post(
-      pool,
-      {
-        query: `
-        query GetCommitsByAddress($address: String!, $page: Int!, $perPage: Int!) {
-  getCommitsByAddress(address: $address, page: $page, perPage: $perPage) {
-    commitAt
-    data
-    address
-    publicKey
-    signature
-    type
-    nonce
-    createdAt
-    updatedAt
-  }
-}
-
-`,
-        variables: {
-          address: address.value,
-          page: page,
-          perPage: 9
-        }
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-
-    if (response.data.errors) {
-      console.error(response.data.errors)
-      return []
-    }
-
-    const commits = response.data.data.getCommitsByAddress
-
-    commits.forEach((commit) => {
-      if (commit.type === 'meta') {
-        meta.value = commit.data
-      }
-    })
-
-    return commits.filter((commit) => commit.type === 'post')
-  } catch (error) {
-    console.error(error)
-    return []
-  }
-}
+import { fetchCommitsByAddress } from "@/config.js";
 
 function scrollbind() {
-  fetchCommits(page.value).then((data) => {
+  fetchCommitsByAddress(address.value, page.value).then((data) => {
     if (data.length > 0) {
-      page.value++
-      commits.value = commits.value.concat(data)
+      page.value++;
+      commits.value = commits.value.concat(data);
     } else {
-      showloadmore.value = false
+      showloadmore.value = false;
     }
-
-    if (data.length < 9) {
-      showloadmore.value = false
-    }
-  })
+  });
 }
 
 onMounted(() => {
-  scrollbind()
-})
+  scrollbind();
+});
 
 window.onscroll = function () {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    scrollbind()
+    scrollbind();
   }
-}
+};
 </script>
 
 <template>
@@ -114,7 +57,10 @@ window.onscroll = function () {
     </div>
     <div class="w-full lg:w-1/2">
       <div class="p-10 mx-auto text-left">
-        <div v-if="meta.hashtags && meta.hashtags.length > 0" class="flex flex-wrap my-1">
+        <div
+          v-if="meta.hashtags && meta.hashtags.length > 0"
+          class="flex flex-wrap my-1"
+        >
           <span
             v-for="hashtag in meta.hashtags"
             :key="hashtag"
@@ -124,7 +70,9 @@ window.onscroll = function () {
           </span>
         </div>
 
-        <h1 class="mb-6 text-5xl font-black tracking-tight text-gray-900 font-heading lg:text-6xl">
+        <h1
+          class="mb-6 text-5xl font-black tracking-tight text-gray-900 font-heading lg:text-6xl"
+        >
           {{ meta.name }}
         </h1>
         <p class="mb-8 text-xl font-bold">
@@ -157,7 +105,7 @@ window.onscroll = function () {
             {{ commit.address }} - {{ format(commit.updatedAt) }}
           </p>
           <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
-            {{ commit.data.content || '' }}
+            {{ commit.data.content || "" }}
           </h1>
         </div>
 
@@ -174,8 +122,14 @@ window.onscroll = function () {
           </span>
         </div>
 
-        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
-          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
+        <div
+          v-if="commit.data.attachments && commit.data.attachments.length > 0"
+        >
+          <div
+            v-for="attachment in commit.data.attachments"
+            :key="attachment.cid"
+            class="mb-4"
+          >
             <img
               v-if="attachment.type === 'image' && attachment.cid"
               :src="`https://ipfs.io/ipfs/${attachment.cid}`"
