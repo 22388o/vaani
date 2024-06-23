@@ -1,56 +1,43 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { format } from "timeago.js";
+import { onMounted, ref } from 'vue'
+import { format } from 'timeago.js'
 
-const commits = ref([]);
-const page = ref(0);
-const showloadmore = ref(true);
+const commits = ref([])
+const page = ref(0)
+const showloadmore = ref(true)
 
-import { fetchCommits, randomCommit } from "@/config.js";
+import { fetchCommits, randomCommit } from '@/config.js'
 
 function scrollbind() {
-  randomCommit().then((data) => {
-    if (data.length > 0) {
-      commits.value = commits.value.concat(data);
-    }
-  });
-
-  randomCommit().then((data) => {
-    if (data.length > 0) {
-      commits.value = commits.value.concat(data);
-    }
-  });
-
-  randomCommit().then((data) => {
-    if (data.length > 0) {
-      commits.value = commits.value.concat(data);
-    }
-  });
-
   fetchCommits(page.value).then((data) => {
     if (data.length > 0) {
-      page.value++;
-      commits.value = commits.value.concat(data);
+      page.value++
+      commits.value = commits.value.concat(data)
     } else {
-      showloadmore.value = false;
+      showloadmore.value = false
     }
-  });
+  })
+
+  randomCommit().then((data) => {
+    if (data.length > 0) {
+      commits.value = commits.value.concat(data)
+    }
+  })
 
   commits.value = commits.value.filter(
-    (commit, index, self) =>
-      index === self.findIndex((t) => t.signature === commit.signature)
-  );
+    (commit, index, self) => index === self.findIndex((t) => t.signature === commit.signature)
+  )
 }
 
 onMounted(() => {
-  scrollbind();
-});
+  scrollbind()
+})
 
 window.onscroll = function () {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    scrollbind();
+    scrollbind()
   }
-};
+}
 </script>
 
 <template>
@@ -63,14 +50,12 @@ window.onscroll = function () {
       <RouterLink :to="`/post/${commit.signature}`">
         <div class="mb-4">
           <p class="text-xs font-bold text-gray-500">
-            <RouterLink :to="`/profile/${commit.address}`">{{
-              commit.address
-            }}</RouterLink>
+            <RouterLink :to="`/profile/${commit.address}`">{{ commit.address }}</RouterLink>
             -
             {{ format(commit.updatedAt) }}
           </p>
           <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
-            {{ commit.data.content || "" }}
+            {{ commit.data.content || '' }}
           </h1>
         </div>
 
@@ -87,14 +72,8 @@ window.onscroll = function () {
           </span>
         </div>
 
-        <div
-          v-if="commit.data.attachments && commit.data.attachments.length > 0"
-        >
-          <div
-            v-for="attachment in commit.data.attachments"
-            :key="attachment.cid"
-            class="mb-4"
-          >
+        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
+          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
             <img
               v-if="attachment.type === 'image' && attachment.cid"
               :src="`https://ipfs.io/ipfs/${attachment.cid}`"

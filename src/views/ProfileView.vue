@@ -1,49 +1,49 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { format } from "timeago.js";
+import { onMounted, ref } from 'vue'
+import { format } from 'timeago.js'
 
-const commits = ref([]);
+const commits = ref([])
 
 const meta = ref({
-  hashtags: ["dummy"],
-  name: "Mr. Aberti",
-  image: "QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq",
-  about: "Not Set !",
-  website: "",
-});
+  hashtags: ['dummy'],
+  name: 'Mr. Aberti',
+  image: 'QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq',
+  about: 'Not Set !',
+  website: ''
+})
 
-const page = ref(0);
+const page = ref(0)
 
-const showloadmore = ref(true);
+const showloadmore = ref(true)
 
-import { useRoute } from "vue-router";
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
-const address = ref(route.params.address);
+const address = ref(route.params.address)
 
-import { fetchCommitsByAddress } from "@/config.js";
+import { fetchCommitsByAddress } from '@/config.js'
 
 function scrollbind() {
   fetchCommitsByAddress(address.value, page.value).then((data) => {
     if (data.length > 0) {
-      page.value++;
-      commits.value = commits.value.concat(data);
+      page.value++
+      commits.value = commits.value.concat(data)
     } else {
-      showloadmore.value = false;
+      showloadmore.value = false
     }
-  });
+  })
 }
 
 onMounted(() => {
-  scrollbind();
-});
+  scrollbind()
+})
 
 window.onscroll = function () {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    scrollbind();
+    scrollbind()
   }
-};
+}
 </script>
 
 <template>
@@ -57,10 +57,7 @@ window.onscroll = function () {
     </div>
     <div class="w-full lg:w-1/2">
       <div class="p-10 mx-auto text-left">
-        <div
-          v-if="meta.hashtags && meta.hashtags.length > 0"
-          class="flex flex-wrap my-1"
-        >
+        <div v-if="meta.hashtags && meta.hashtags.length > 0" class="flex flex-wrap my-1">
           <span
             v-for="hashtag in meta.hashtags"
             :key="hashtag"
@@ -70,9 +67,7 @@ window.onscroll = function () {
           </span>
         </div>
 
-        <h1
-          class="mb-6 text-5xl font-black tracking-tight text-gray-900 font-heading lg:text-6xl"
-        >
+        <h1 class="mb-6 text-5xl font-black tracking-tight text-gray-900 font-heading lg:text-6xl">
           {{ meta.name }}
         </h1>
         <p class="mb-8 text-xl font-bold">
@@ -105,7 +100,7 @@ window.onscroll = function () {
             {{ commit.address }} - {{ format(commit.updatedAt) }}
           </p>
           <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
-            {{ commit.data.content || "" }}
+            {{ commit.data.content || '' }}
           </h1>
         </div>
 
@@ -122,14 +117,8 @@ window.onscroll = function () {
           </span>
         </div>
 
-        <div
-          v-if="commit.data.attachments && commit.data.attachments.length > 0"
-        >
-          <div
-            v-for="attachment in commit.data.attachments"
-            :key="attachment.cid"
-            class="mb-4"
-          >
+        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
+          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
             <img
               v-if="attachment.type === 'image' && attachment.cid"
               :src="`https://ipfs.io/ipfs/${attachment.cid}`"
