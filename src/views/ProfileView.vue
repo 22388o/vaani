@@ -104,48 +104,42 @@ window.onscroll = function () {
 </script>
 
 <template>
-  {{ meta }}
+  <div class="flex flex-wrap py-20">
+    <div class="w-full lg:w-1/2">
+      <img
+        class="transition duration-500 transform hover:-translate-y-2"
+        :src="`https://ipfs.io/ipfs/${meta.image}`"
+        alt=""
+      />
+    </div>
+    <div class="w-full lg:w-1/2">
+      <div class="p-10 mx-auto text-left">
+        <div v-if="meta.hashtags && meta.hashtags.length > 0" class="flex flex-wrap my-1">
+          <span
+            v-for="hashtag in meta.hashtags"
+            :key="hashtag"
+            class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded"
+          >
+            {{ hashtag }}
+          </span>
+        </div>
 
-  <div class="w-full px-4 mx-auto lg:w-1/2">
-    <div
-      class="relative flex flex-col w-full min-w-0 mt-16 mb-6 break-words bg-white rounded-lg shadow-xl"
-    >
-      <div class="px-6">
-        <div class="flex flex-wrap justify-center">
-          <div class="flex justify-center w-full px-4">
-            <div class="relative">
-              <img
-                :src="`https://ipfs.io/ipfs/${meta.image}`"
-                class="absolute h-auto -m-16 -ml-20 align-middle border-none rounded-full shadow-xl lg:-ml-16 max-w-150-px"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="mt-12 text-center">
-          <h3 class="mb-2 text-xl font-semibold leading-normal text-blueGray-700">
-            {{ meta.name || '' }}
-          </h3>
-          <div class="mt-0 mb-2 text-sm font-bold leading-normal uppercase text-blueGray-400">
-            <i class="mr-2 text-lg fas fa-map-marker-alt text-blueGray-400"></i>
-            {{ meta.about || '' }}
-          </div>
-          <div class="mt-10 mb-2 text-blueGray-600">
-            <i class="mr-2 text-lg fas fa-briefcase text-blueGray-400"></i>
-            Solution Manager - Creative Tim Officer
-          </div>
-          <div class="mb-2 text-blueGray-600">
-            <i class="mr-2 text-lg fas fa-university text-blueGray-400"></i>
-            University of Computer Science
-          </div>
-        </div>
-        <div class="py-10 mt-10 text-center border-t border-blueGray-200">
-          <div class="flex flex-wrap justify-center">
-            <div class="w-full px-4 lg:w-9/12">
-              <a :href="`${meta.website}`" class="font-normal text-pink-500">
-                {{ meta.website }}
-              </a>
-            </div>
-          </div>
+        <h1 class="mb-6 text-5xl font-black tracking-tight text-gray-900 font-heading lg:text-6xl">
+          {{ meta.name }}
+        </h1>
+        <p class="mb-8 text-xl font-bold">
+          {{ meta.about }}
+        </p>
+
+        <div class="flex items-center space-x-4">
+          <a
+            v-if="meta.website"
+            :href="meta.website"
+            target="_blank"
+            class="px-4 py-2 font-semibold text-white transition-colors duration-300 bg-blue-500 rounded-md shadow-md hover:bg-blue-600"
+          >
+            Visit Website
+          </a>
         </div>
       </div>
     </div>
@@ -208,4 +202,6 @@ window.onscroll = function () {
       Load More
     </button>
   </div>
+
+  {{ meta }}
 </template>
