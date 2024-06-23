@@ -20,13 +20,13 @@ const graphQLRequest = async (query, variables = {}) => {
 
     if (response.data.errors) {
       console.error("GraphQL errors:", response.data.errors);
-      return [];
+      return null;
     }
 
     return response.data.data;
   } catch (error) {
     console.error("Request failed:", error);
-    return [];
+    return null;
   }
 };
 
@@ -46,9 +46,11 @@ export const randomCommit = async () => {
   }`;
 
   const data = await graphQLRequest(query);
-  const { getRandomCommit = [] } = data;
+  if (!data || !Array.isArray(data.getRandomCommit)) {
+    return [];
+  }
   
-  return getRandomCommit.filter(commit => commit.type === "post");
+  return data.getRandomCommit.filter(commit => commit.type === "post");
 };
 
 export const fetchCommits = async (page) => {
@@ -68,9 +70,11 @@ export const fetchCommits = async (page) => {
 
   const variables = { page, perPage: PER_PAGE };
   const data = await graphQLRequest(query, variables);
-  const { getCommits = [] } = data;
-  
-  return getCommits.filter(commit => commit.type === "post");
+  if (!data || !Array.isArray(data.getCommits)) {
+    return [];
+  }
+
+  return data.getCommits.filter(commit => commit.type === "post");
 };
 
 export const fetchCommitBySig = async (signature) => {
@@ -90,7 +94,11 @@ export const fetchCommitBySig = async (signature) => {
 
   const variables = { signature };
   const data = await graphQLRequest(query, variables);
-  return data.getCommit || [];
+  if (!data || !data.getCommit) {
+    return [];
+  }
+  
+  return data.getCommit;
 };
 
 export const fetchCommitsByAddress = async (address, page) => {
@@ -110,7 +118,9 @@ export const fetchCommitsByAddress = async (address, page) => {
 
   const variables = { address, page, perPage: PER_PAGE };
   const data = await graphQLRequest(query, variables);
-  const { getCommitsByAddress = [] } = data;
-  
-  return getCommitsByAddress.filter(commit => commit.type === "post");
+  if (!data || !Array.isArray(data.getCommitsByAddress)) {
+    return [];
+  }
+
+  return data.getCommitsByAddress.filter(commit => commit.type === "post");
 };
