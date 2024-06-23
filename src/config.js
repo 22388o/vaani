@@ -46,11 +46,12 @@ export const randomCommit = async () => {
   }`;
 
   const data = await graphQLRequest(query);
-  if (!data || !Array.isArray(data.getRandomCommit)) {
+
+  if (data.getRandomCommit.type === "post") {
+    return data.getRandomCommit;
+  } else {
     return [];
   }
-  
-  return data.getRandomCommit.filter(commit => commit.type === "post");
 };
 
 export const fetchCommits = async (page) => {
@@ -74,7 +75,7 @@ export const fetchCommits = async (page) => {
     return [];
   }
 
-  return data.getCommits.filter(commit => commit.type === "post");
+  return data.getCommits.filter((commit) => commit.type === "post");
 };
 
 export const fetchCommitBySig = async (signature) => {
@@ -94,10 +95,11 @@ export const fetchCommitBySig = async (signature) => {
 
   const variables = { signature };
   const data = await graphQLRequest(query, variables);
+
   if (!data || !data.getCommit) {
     return [];
   }
-  
+
   return data.getCommit;
 };
 
@@ -122,5 +124,5 @@ export const fetchCommitsByAddress = async (address, page) => {
     return [];
   }
 
-  return data.getCommitsByAddress.filter(commit => commit.type === "post");
+  return data.getCommitsByAddress.filter((commit) => commit.type === "post");
 };
