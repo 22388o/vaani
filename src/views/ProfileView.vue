@@ -4,6 +4,14 @@ import axios from 'axios'
 import { format } from 'timeago.js'
 
 const commits = ref([])
+
+const meta = ref({
+  name: '',
+  image: 'QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq',
+  about: '',
+  website: ''
+})
+
 const page = ref(0)
 const showloadmore = ref(true)
 
@@ -55,6 +63,13 @@ async function fetchCommits(page) {
     }
 
     const commits = response.data.data.getCommitsByAddress
+
+    commits.forEach((commit) => {
+      if (commit.type === 'meta') {
+        meta.value = commit.data
+      }
+    })
+
     return commits.filter((commit) => commit.type === 'post')
   } catch (error) {
     console.error(error)
@@ -89,6 +104,53 @@ window.onscroll = function () {
 </script>
 
 <template>
+  {{ meta }}
+
+  <div class="w-full px-4 mx-auto lg:w-1/2">
+    <div
+      class="relative flex flex-col w-full min-w-0 mt-16 mb-6 break-words bg-white rounded-lg shadow-xl"
+    >
+      <div class="px-6">
+        <div class="flex flex-wrap justify-center">
+          <div class="flex justify-center w-full px-4">
+            <div class="relative">
+              <img
+                :src="`https://ipfs.io/ipfs/${meta.image}`"
+                class="absolute h-auto -m-16 -ml-20 align-middle border-none rounded-full shadow-xl lg:-ml-16 max-w-150-px"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="mt-12 text-center">
+          <h3 class="mb-2 text-xl font-semibold leading-normal text-blueGray-700">
+            {{ meta.name || '' }}
+          </h3>
+          <div class="mt-0 mb-2 text-sm font-bold leading-normal uppercase text-blueGray-400">
+            <i class="mr-2 text-lg fas fa-map-marker-alt text-blueGray-400"></i>
+            {{ meta.about || '' }}
+          </div>
+          <div class="mt-10 mb-2 text-blueGray-600">
+            <i class="mr-2 text-lg fas fa-briefcase text-blueGray-400"></i>
+            Solution Manager - Creative Tim Officer
+          </div>
+          <div class="mb-2 text-blueGray-600">
+            <i class="mr-2 text-lg fas fa-university text-blueGray-400"></i>
+            University of Computer Science
+          </div>
+        </div>
+        <div class="py-10 mt-10 text-center border-t border-blueGray-200">
+          <div class="flex flex-wrap justify-center">
+            <div class="w-full px-4 lg:w-9/12">
+              <a :href="`${meta.website}`" class="font-normal text-pink-500">
+                {{ meta.website }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
     <div
       v-for="commit in commits"
