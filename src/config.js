@@ -1,9 +1,12 @@
 import axios from 'axios'
 
 const POOL_URL = localStorage.getItem('pool')
+
 const PER_PAGE = 3 * 8
 
 const graphQLRequest = async (query, variables = {}) => {
+  console.log(`Using : ${POOL_URL}`)
+
   try {
     const response = await axios.post(
       POOL_URL,
@@ -140,8 +143,7 @@ export const getServerInfo = async () => {
     }
   }`
 
-  // Call the graphQLRequest function with the query
   const data = await graphQLRequest(query)
 
-  return data.getServerInfo // Return the specific data you need
+  return data.getServerInfo
 }
