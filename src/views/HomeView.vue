@@ -13,11 +13,16 @@ const serverData = ref({
   oldestEntryDate: '2024-06-23T02:33:45.581Z'
 })
 
-const pool = ref(localStorage.getItem('pool'))
+let pool = ref('https://pool.albertiprotocol.org/graphql')
 
 const fetchServerInfo = async () => {
   try {
+    localStorage.setItem('pool', pool.value)
+
     const data = await getServerInfo(pool.value)
+
+    console.log('server:', data)
+
     if (data) {
       serverData.value = data
     } else {
@@ -28,10 +33,7 @@ const fetchServerInfo = async () => {
   }
 }
 
-const connect = async (event) => {
-  event.preventDefault()
-  localStorage.setItem('pool', pool.value)
-  await fetchServerInfo()
+const connect = async () => {
   router.push('/timeline')
 }
 </script>
@@ -52,6 +54,7 @@ const connect = async (event) => {
           </div>
 
           <h3 class="mb-8 text-2xl font-bold uppercase font-heading">Connect To Pool</h3>
+          
           <input
             class="w-full py-3 pl-3 mb-4 bg-white border rounded-lg"
             type="text"
