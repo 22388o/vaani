@@ -1,34 +1,39 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { format } from 'timeago.js'
+import { useRoute } from 'vue-router'
+import { fetchCommitsByAddress } from '@/config.js'
 
 const commits = ref([])
-
 const meta = ref({
   hashtags: ['dummy'],
   name: 'Mr. Aberti',
   image: 'QmSsUfeS2EXfe6QJa5G3MYoJXmLhgr7kzUMo9cVJM6wfmq',
   about: 'Not Set !',
-  website: ''
+  website: '',
+  updatedAt: 0
 })
-
 const page = ref(0)
-
 const showloadmore = ref(true)
-
-import { useRoute } from 'vue-router'
-
 const route = useRoute()
-
 const address = ref(route.params.address)
-
-import { fetchCommitsByAddress } from '@/config.js'
 
 function scrollbind() {
   fetchCommitsByAddress(address.value, page.value).then((data) => {
     if (data.length > 0) {
+      data.forEach((datax) => {
+        if (datax.type === 'meta') {
+          if (datax.updatedAt > meta.value.updatedAt) {
+            meta.value = datax.data
+            meta.value.updatedAt = datax.updatedAt
+          }
+        }
+        if (datax.type === 'post') {
+          commits.value.push(datax)
+        }
+      })
+
       page.value++
-      commits.value = commits.value.concat(data)
     } else {
       showloadmore.value = false
     }
@@ -48,6 +53,8 @@ window.onscroll = function () {
     scrollbind()
   }
 }
+
+import posts from '@/components/posts.vue'
 </script>
 
 <template>
@@ -92,54 +99,7 @@ window.onscroll = function () {
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-    <div
-      v-for="commit in commits"
-      :key="commit.signature"
-      class="p-5 py-8 text-left transition-transform duration-300 bg-white rounded-md shadow-md cursor-pointer hover:shadow-xl hover:-translate-y-1"
-    >
-      <RouterLink :to="`/post/${commit.signature}`">
-        <div class="mb-4">
-          <p class="text-xs font-bold text-gray-500">
-            {{ commit.address }} - {{ format(commit.updatedAt) }}
-          </p>
-          <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
-            {{ commit.data.content || '' }}
-          </h1>
-        </div>
-
-        <div
-          v-if="commit.data.hashtags && commit.data.hashtags.length > 0"
-          class="flex flex-wrap mb-4"
-        >
-          <span
-            v-for="hashtag in commit.data.hashtags"
-            :key="hashtag"
-            class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded"
-          >
-            {{ hashtag }}
-          </span>
-        </div>
-
-        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
-          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
-            <img
-              v-if="attachment.type === 'image' && attachment.cid"
-              :src="`https://ipfs.io/ipfs/${attachment.cid}`"
-              alt="Attachment Image"
-              class="w-full rounded-lg"
-            />
-            <img
-              v-if="attachment.type === 'image' && attachment.url"
-              :src="`${attachment.url}`"
-              alt="Attachment Image"
-              class="w-full rounded-lg"
-            />
-          </div>
-        </div>
-      </RouterLink>
-    </div>
-  </div>
+  <posts :commits="commits" />
 
   <div class="mt-8 text-center" v-if="showloadmore">
     <button
@@ -149,6 +109,4 @@ window.onscroll = function () {
       Load More
     </button>
   </div>
-
-  {{ meta }}
 </template>

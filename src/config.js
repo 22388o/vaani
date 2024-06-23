@@ -5,8 +5,6 @@ const POOL_URL = localStorage.getItem('pool')
 const PER_PAGE = 3 * 8
 
 const graphQLRequest = async (query, variables = {}) => {
-  console.log(`Using : ${POOL_URL}`)
-
   try {
     const response = await axios.post(
       POOL_URL,
@@ -78,7 +76,7 @@ export const fetchCommits = async (page) => {
     return []
   }
 
-  return data.getCommits.filter((commit) => commit.type === 'post')
+  return data.getCommits
 }
 
 export const commitbySignature = async (signature) => {
@@ -129,7 +127,7 @@ export const fetchCommitsByAddress = async (address, page) => {
     return []
   }
 
-  return data.getCommitsByAddress.filter((commit) => commit.type === 'post')
+  return data.getCommitsByAddress
 }
 
 export const getServerInfo = async () => {
