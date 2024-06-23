@@ -9,6 +9,45 @@ const showloadmore = ref(true)
 
 import { pool } from '@/config.js'
 
+async function randomCommit() {
+  try {
+    const response = await axios.post(
+      pool,
+      {
+        query: `query GetRandomCommit {
+  getRandomCommit {
+    commitAt
+    data
+    address
+    publicKey
+    signature
+    type
+    nonce
+    createdAt
+    updatedAt
+  }
+}`
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    if (response.data.errors) {
+      console.error(response.data.errors)
+      return []
+    }
+
+    const commits = response.data.data.getRandomCommit
+    return commits.filter((commit) => commit.type === 'post')
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
 async function fetchCommits(page) {
   try {
     const response = await axios.post(
@@ -53,6 +92,24 @@ async function fetchCommits(page) {
 }
 
 function scrollbind() {
+  randomCommit().then((data) => {
+    if (data.length > 0) {
+      commits.value = commits.value.concat(data)
+    }
+  })
+
+  randomCommit().then((data) => {
+    if (data.length > 0) {
+      commits.value = commits.value.concat(data)
+    }
+  })
+
+  randomCommit().then((data) => {
+    if (data.length > 0) {
+      commits.value = commits.value.concat(data)
+    }
+  })
+
   fetchCommits(page.value).then((data) => {
     if (data.length > 0) {
       page.value++
@@ -65,6 +122,10 @@ function scrollbind() {
       showloadmore.value = false
     }
   })
+
+  commits.value = commits.value.filter(
+    (commit, index, self) => index === self.findIndex((t) => t.signature === commit.signature)
+  )
 }
 
 onMounted(() => {
