@@ -2,6 +2,8 @@ export const pool = "https://pool.albertiprotocol.org/graphql";
 
 const perPage = 3 * 8;
 
+import axios from "axios";
+
 export async function randomCommit() {
   try {
     const response = await axios.post(

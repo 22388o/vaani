@@ -66,15 +66,13 @@ import { ref, onMounted } from "vue";
 
 import { format } from "timeago.js";
 
-import axios from "axios";
-
 import { fetchCommitBySig } from "@/config.js";
 
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const id = route.params.id;
+const id = ref(route.params.id);
 
 const commit = ref({
   commitAt: "",

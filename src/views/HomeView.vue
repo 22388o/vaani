@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import axios from "axios";
 import { format } from "timeago.js";
 
 const commits = ref([]);
