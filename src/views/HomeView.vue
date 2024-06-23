@@ -1,103 +1,78 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { format } from 'timeago.js'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { getServerInfo } from '@/config.js'
 
-const commits = ref([])
-const page = ref(0)
-const showloadmore = ref(true)
+const router = useRouter()
 
-import { fetchCommits, randomCommit } from '@/config.js'
-
-function scrollbind() {
-  fetchCommits(page.value).then((data) => {
-    if (data.length > 0) {
-      page.value++
-      commits.value = commits.value.concat(data)
-    } else {
-      showloadmore.value = false
-    }
-  })
-
-  randomCommit().then((data) => {
-    if (data.length > 0) {
-      commits.value = commits.value.concat(data)
-    }
-  })
-
-  commits.value = commits.value.filter(
-    (commit, index, self) => index === self.findIndex((t) => t.signature === commit.signature)
-  )
-}
-
-onMounted(() => {
-  scrollbind()
+const serverData = ref({
+  difficulty: 0,
+  currentTime: '2024-06-23T05:53:45.740Z',
+  totalEntries: 0,
+  totalAddresses: 0,
+  oldestEntryDate: '2024-06-23T02:33:45.581Z'
 })
 
-window.onscroll = function () {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    scrollbind()
+const pool = ref(localStorage.getItem('pool'))
+
+const fetchServerInfo = async () => {
+  try {
+    const data = await getServerInfo(pool.value)
+    if (data) {
+      serverData.value = data
+    } else {
+      console.error('Failed to fetch server info')
+    }
+  } catch (error) {
+    console.error('Error fetching server info:', error)
   }
+}
+
+const connect = async (event) => {
+  event.preventDefault()
+  localStorage.setItem('pool', pool.value)
+  await fetchServerInfo()
+  router.push('/timeline')
 }
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-    <div
-      v-for="commit in commits"
-      :key="commit.signature"
-      class="p-5 py-8 text-left transition-transform duration-300 bg-white rounded-md shadow-md cursor-pointer hover:shadow-xl hover:-translate-y-1"
-    >
-      <RouterLink :to="`/post/${commit.signature}`">
-        <div class="mb-4">
-          <p class="text-xs font-bold text-gray-500">
-            <RouterLink :to="`/profile/${commit.address}`">{{ commit.address }}</RouterLink>
-            -
-            {{ format(commit.updatedAt) }}
-          </p>
-          <h1 class="mt-2 mb-4 text-xl font-extrabold text-gray-800">
-            {{ commit.data.content || '' }}
-          </h1>
-        </div>
-
-        <div
-          v-if="commit.data.hashtags && commit.data.hashtags.length > 0"
-          class="flex flex-wrap mb-4"
-        >
-          <span
-            v-for="hashtag in commit.data.hashtags"
-            :key="hashtag"
-            class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded"
-          >
-            {{ hashtag }}
-          </span>
-        </div>
-
-        <div v-if="commit.data.attachments && commit.data.attachments.length > 0">
-          <div v-for="attachment in commit.data.attachments" :key="attachment.cid" class="mb-4">
-            <img
-              v-if="attachment.type === 'image' && attachment.cid"
-              :src="`https://ipfs.io/ipfs/${attachment.cid}`"
-              alt="Attachment Image"
-              class="w-full rounded-lg"
-            />
-            <img
-              v-if="attachment.type === 'image' && attachment.url"
-              :src="`${attachment.url}`"
-              alt="Attachment Image"
-              class="w-full rounded-lg"
-            />
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="w-full mb-12 lg:w-1/2">
+      <div class="lg:max-w-md">
+        <div class="max-w-md py-10 mx-auto text-center">
+          <div v-if="Object.keys(serverData).length > 0 && serverData.difficulty > 0">
+            <h3 class="mb-4 text-2xl font-bold uppercase font-heading">Server Data</h3>
+            <p>Current Time: {{ serverData.currentTime }}</p>
+            <p>Total Entries: {{ serverData.totalEntries }}</p>
+            <p>Total Addresses: {{ serverData.totalAddresses }}</p>
+            <p>Oldest Entry Date: {{ serverData.oldestEntryDate }}</p>
+            <p>Current Difficulty: {{ serverData.difficulty }}</p>
+            <p>Server Status: {{ serverData.difficulty > 1 ? 'High' : 'Low' }}</p>
           </div>
-        </div>
-      </RouterLink>
-    </div>
-  </div>
 
-  <div class="mt-8 text-center" v-if="showloadmore">
-    <button
-      @click="scrollbind()"
-      class="px-4 py-2 font-semibold text-white transition-colors duration-300 bg-blue-500 rounded-md shadow-md hover:bg-blue-600"
-    >
-      Load More
-    </button>
+          <h3 class="mb-8 text-2xl font-bold uppercase font-heading">Connect To Pool</h3>
+          <input
+            class="w-full py-3 pl-3 mb-4 bg-white border rounded-lg"
+            type="text"
+            v-model="pool"
+          />
+          <button
+            @click="fetchServerInfo"
+            class="inline-block w-full px-6 py-3 mb-4 text-sm font-bold leading-loose text-white transition duration-200 bg-gray-500 rounded hover:bg-gray-600"
+          >
+            Fetch
+          </button>
+          <button
+            @click="connect"
+            v-if="serverData.difficulty > 1"
+            type="submit"
+            class="inline-block w-full px-6 py-3 mb-4 text-sm font-bold leading-loose text-white transition duration-200 bg-gray-500 rounded hover:bg-gray-600"
+          >
+            Connect
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

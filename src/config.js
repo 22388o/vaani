@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const POOL_URL = 'https://pool.albertiprotocol.org/graphql'
+const POOL_URL = localStorage.getItem('pool')
 const PER_PAGE = 3 * 8
 
 const graphQLRequest = async (query, variables = {}) => {
@@ -102,7 +102,6 @@ export const commitbySignature = async (signature) => {
     return null
   }
 
-
   return data.getCommit
 }
 
@@ -128,4 +127,21 @@ export const fetchCommitsByAddress = async (address, page) => {
   }
 
   return data.getCommitsByAddress.filter((commit) => commit.type === 'post')
+}
+
+export const getServerInfo = async () => {
+  const query = `query GetServerInfo {
+    getServerInfo {
+      difficulty
+      currentTime
+      totalEntries
+      totalAddresses
+      oldestEntryDate
+    }
+  }`
+
+  // Call the graphQLRequest function with the query
+  const data = await graphQLRequest(query)
+
+  return data.getServerInfo // Return the specific data you need
 }
